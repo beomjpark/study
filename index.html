@@ -38,6 +38,15 @@
 			-ms-interpolation-mode: nearest-neighbor;
 		}
 	</style>
+	<script>
+		// Telegram Web App API를 사용하여 Telegram Mini App이 준비되었음을 알리고 화면을 확장
+		document.addEventListener("DOMContentLoaded", function () {
+			if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+				Telegram.WebApp.ready();  // Telegram Mini App 준비
+				Telegram.WebApp.expand(); // 화면 최대화
+			}
+		});
+	</script>
 </head>
 
 <body>
