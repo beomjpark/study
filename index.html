@@ -11,7 +11,7 @@
 			background: #0E1C30;
 			width: 100%;
 			height: 100%;
-			overflow: visible;
+			overflow: hidden;
 			padding: 0;
 			margin: 0;
 		}
@@ -19,14 +19,19 @@
 		div#gameContainer {
 			background: transparent !important;
 			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
 		}
 
 		div#gameContainer canvas {
 			position: absolute;
-		}
-
-		div#gameContainer canvas[data-pixel-art="true"] {
-			position: absolute;
+			width: 100%;
+			height: 100%;
 			image-rendering: optimizeSpeed;
 			image-rendering: -webkit-crisp-edges;
 			image-rendering: -moz-crisp-edges;
@@ -40,12 +45,15 @@
 	</style>
 	<script>
 		// Telegram Web App API를 사용하여 Telegram Mini App이 준비되었음을 알리고 화면을 확장
-		document.addEventListener("DOMContentLoaded", function () {
+		window.onload = function () {
 			if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
 				Telegram.WebApp.ready();  // Telegram Mini App 준비
 				Telegram.WebApp.expand(); // 화면 최대화
 			}
-		});
+			
+			// 초기화 후 바로 onResize 호출
+			onResize();
+		};
 	</script>
 </head>
 
@@ -64,56 +72,38 @@
 				productName: "OnMeowZ-Clicker",
 				productVersion: "1.0",
 			};
-			var scaleToFit;
-			try {
-				scaleToFit = !!JSON.parse("true");
-			} catch (e) {
-				scaleToFit = true;
-			}
+			var scaleToFit = true;
+
 			function progressHandler(progress) {
 				var percent = progress * 100 + '%';
 				canvas.style.background = 'linear-gradient(to right, white, white ' + percent + ', transparent ' + percent + ', transparent) no-repeat center';
 				canvas.style.backgroundSize = '100% 1rem';
 			}
+
 			function onResize() {
 				var container = canvas.parentElement;
-				var w;
-				var h;
+				var w = window.innerWidth;
+				var h = window.innerHeight;
 
-				if (scaleToFit) {
-					w = window.innerWidth;
-					h = window.innerHeight;
+				var r = 1600 / 900;
 
-					var r = 1600 / 900;
-
-					if (w * r > window.innerHeight) {
-						w = Math.min(w, Math.ceil(h / r));
-					}
-					h = Math.floor(w * r);
-				} else {
-					w = 900;
-					h = 1600;
+				if (w * r > h) {
+					w = Math.min(w, Math.ceil(h / r));
 				}
+				h = Math.floor(w * r);
 
 				container.style.width = canvas.style.width = w + "px";
 				container.style.height = canvas.style.height = h + "px";
 				container.style.top = Math.floor((window.innerHeight - h) / 2) + "px";
 				container.style.left = Math.floor((window.innerWidth - w) / 2) + "px";
 			}
+
 			createUnityInstance(canvas, config, progressHandler).then(function (instance) {
 				canvas = instance.Module.canvas;
 				onResize();
 			});
-			window.addEventListener('resize', onResize);
-			onResize();
 
-			if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-				// Mobile device style: fill the whole browser client area with the game canvas:
-				const meta = document.createElement('meta');
-				meta.name = 'viewport';
-				meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-				document.getElementsByTagName('head')[0].appendChild(meta);
-			}
+			window.addEventListener('resize', onResize);
 		</script>
 	</div>
 </body>
